@@ -49,8 +49,9 @@ defmodule Rephex do
 
   alias Rephex.Base
 
-  @type state :: %{count: integer()}
-  @initial_state %{count: 0}
+  defstruct count: 0
+
+  @type t :: %__MODULE__{count: integer()}
 
   @async MapSet.new([Rephex.AddCountAsync])
 
@@ -67,29 +68,29 @@ defmodule Rephex do
   """
   @spec init(Socket.t()) :: Socket.t()
   def init(%Socket{} = socket) do
-    Base.init(socket, @initial_state)
+    Base.init(socket, %__MODULE__{})
   end
 
   # Action
 
   @spec count_up(Socket.t(), %{}) :: Socket.t()
   def count_up(%Socket{} = socket, _payload) do
-    Base.update_Rephex(socket, fn state ->
+    Base.update_Rephex(socket, fn %__MODULE__{} = state ->
       %{state | count: state.count + 1}
     end)
   end
 
   @spec add_count(Socket.t(), %{amount: integer()}) :: Socket.t()
   def add_count(%Socket{} = socket, %{amount: am}) do
-    Base.update_Rephex(socket, fn state ->
+    Base.update_Rephex(socket, fn %__MODULE__{} = state ->
       %{state | count: state.count + am}
     end)
   end
 
   # Selector
 
-  @spec count(state()) :: integer()
-  def count(state) do
+  @spec count(t()) :: integer()
+  def count(%__MODULE__{} = state) do
     state.count
   end
 
@@ -104,6 +105,7 @@ end
 
 defmodule Rephex.AddCountAsync do
   alias Rephex.Base
+  alias Rephex
   alias Phoenix.LiveView.Socket
 
   import Phoenix.LiveComponent
@@ -118,7 +120,7 @@ defmodule Rephex.AddCountAsync do
   end
 
   def finish(%Socket{} = socket, result) do
-    Base.update_Rephex(socket, fn state ->
+    Base.update_Rephex(socket, fn %Rephex{} = state ->
       case result do
         {:ok, amount} -> %{state | count: state.count + amount}
         {:exit, _reason} -> state
