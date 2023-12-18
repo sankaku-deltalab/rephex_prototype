@@ -7,7 +7,7 @@ defmodule RephexPtWeb.UserLive.ChildComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <p>Count: <%= Rephex.count(@__rephex__) %></p>
+      <p>Count: <%= Rephex.CounterSlice.count(@__rephex__) %></p>
       <button phx-click="add_count" phx-value-amount="10">Add 10</button>
       <%= if @flip do %>
         flip
