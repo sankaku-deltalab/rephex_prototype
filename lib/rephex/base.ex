@@ -1,4 +1,4 @@
-defmodule Rephex do
+defmodule Rephex.Base do
   @moduledoc """
   State manager like Redux-toolkit for LiveView.
 
@@ -40,17 +40,17 @@ defmodule Rephex do
   ```
   """
 
-  # import Phoenix.Component
+  import Phoenix.Component
   import Phoenix.LiveComponent
   # import Phoenix.LiveView
   # alias Phoenix.LiveView.AsyncResult
   alias Phoenix.LiveView.Socket
   # use KinWeb, :live_component
 
-  alias Rephex.Base
+  # For prototyping, use only 1 slice
+  @root :__rephex__
 
-  @type state :: %{count: integer()}
-  @initial_state %{count: 0}
+  @type state :: map()
 
   @doc """
   Initialize Rephex state.
@@ -63,54 +63,38 @@ defmodule Rephex do
   end
   ```
   """
-  @spec init(Socket.t()) :: Socket.t()
-  def init(%Socket{} = socket) do
-    Base.init(socket, @initial_state)
+  @spec init(Socket.t(), map()) :: Socket.t()
+  def init(%Socket{} = socket, %{} = state) do
+    assign(socket, @root, state)
   end
 
-  # Action
+  @doc """
+  Update Rephex state.
 
-  @spec count_up(Socket.t(), %{}) :: Socket.t()
-  def count_up(%Socket{} = socket, _payload) do
-    Base.update_Rephex(socket, fn state ->
-      %{state | count: state.count + 1}
-    end)
-  end
+  ## Example
 
-  @spec add_count(Socket.t(), %{amount: integer()}) :: Socket.t()
+  ```ex
   def add_count(%Socket{} = socket, %{amount: am}) do
-    Base.update_Rephex(socket, fn state ->
+    update_Rephex(socket, fn state ->
       %{state | count: state.count + am}
     end)
   end
+  ```
+  """
+  @spec update_Rephex(Socket.t(), (st -> st)) :: Socket.t() when st: state()
+  def update_Rephex(%Socket{} = socket, func) do
+    socket
+    |> assign(@root, func.(socket.assigns[@root]))
+  end
 
-  # defmodule AddCountAsync do
-  #   import Rephex
-  #   @add_count_async_key :add_count_async
+  @spec get_Rephex(Socket.t()) :: st when st: state()
+  def get_Rephex(%Socket{} = socket) do
+    socket.assigns[@root]
+  end
 
-  #   @spec start(Socket.t(), %{amount: integer()}) :: Socket.t()
-  #   def start(%Socket{} = socket, %{amount: am}) do
-  #     start_async(socket, @add_count_async_key, fn ->
-  #       :timer.sleep(1000)
-  #       am
-  #     end)
-  #   end
-
-  #   @spec finish(Socket.t(), any()) :: Socket.t()
-  #   def finish(%Socket{} = socket, result) do
-  #     update_Rephex(socket, fn state ->
-  #       case result do
-  #         {:ok, amount} -> %{state | count: state.count + amount}
-  #         {:exit, _reason} -> state
-  #       end
-  #     end)
-  #   end
-  # end
-
-  # Selector
-
-  @spec count(state()) :: integer()
-  def count(state) do
-    state.count
+  @spec get_from_Rephex(Socket.t(), (st -> val)) :: val when st: state(), val: any()
+  def get_from_Rephex(%Socket{} = socket, getter) do
+    socket.assigns[@root]
+    |> getter.()
   end
 end
