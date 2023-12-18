@@ -17,6 +17,10 @@ defmodule RephexPtWeb.UserLive.ChildComponent do
       <button phx-click="flipflop" phx-target={@myself}>
         [FlipFlop & Add count]
       </button>
+
+      <div>
+        <button phx-click="add_2_async">[Add 2 async]</button>
+      </div>
     </div>
     """
   end

@@ -52,6 +52,8 @@ defmodule Rephex do
   @type state :: %{count: integer()}
   @initial_state %{count: 0}
 
+  @async MapSet.new([Rephex.AddCountAsync])
+
   @doc """
   Initialize Rephex state.
 
@@ -84,33 +86,43 @@ defmodule Rephex do
     end)
   end
 
-  # defmodule AddCountAsync do
-  #   import Rephex
-  #   @add_count_async_key :add_count_async
-
-  #   @spec start(Socket.t(), %{amount: integer()}) :: Socket.t()
-  #   def start(%Socket{} = socket, %{amount: am}) do
-  #     start_async(socket, @add_count_async_key, fn ->
-  #       :timer.sleep(1000)
-  #       am
-  #     end)
-  #   end
-
-  #   @spec finish(Socket.t(), any()) :: Socket.t()
-  #   def finish(%Socket{} = socket, result) do
-  #     update_Rephex(socket, fn state ->
-  #       case result do
-  #         {:ok, amount} -> %{state | count: state.count + amount}
-  #         {:exit, _reason} -> state
-  #       end
-  #     end)
-  #   end
-  # end
-
   # Selector
 
   @spec count(state()) :: integer()
   def count(state) do
     state.count
+  end
+
+  def resolve_async(%Socket{} = socket, name, result) do
+    if name in @async do
+      name.finish(socket, result)
+    else
+      raise {:not_async_module, name}
+    end
+  end
+end
+
+defmodule Rephex.AddCountAsync do
+  alias Rephex.Base
+  alias Phoenix.LiveView.Socket
+
+  import Phoenix.LiveComponent
+  # alias Phoenix.LiveView.AsyncResult
+
+  @spec start(Socket.t(), %{amount: integer()}) :: Socket.t()
+  def start(%Socket{} = socket, %{amount: am}) do
+    Base.start_async(socket, __MODULE__, fn ->
+      :timer.sleep(1000)
+      am
+    end)
+  end
+
+  def finish(%Socket{} = socket, result) do
+    Base.update_Rephex(socket, fn state ->
+      case result do
+        {:ok, amount} -> %{state | count: state.count + amount}
+        {:exit, _reason} -> state
+      end
+    end)
   end
 end

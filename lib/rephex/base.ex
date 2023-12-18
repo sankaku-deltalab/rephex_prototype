@@ -97,4 +97,8 @@ defmodule Rephex.Base do
     socket.assigns[@root]
     |> getter.()
   end
+
+  def start_async(%Socket{} = socket, module, fun) do
+    Phoenix.LiveView.start_async(socket, module, fun)
+  end
 end
