@@ -31,6 +31,7 @@ defmodule Rephex.Slice do
       @spec init_slice(Socket.t(), state()) :: Socket.t()
       def init_slice(%Socket{} = socket, %slice_struct{} = state) do
         socket
+        |> assign_new(@root, fn -> %{} end)
         |> update(@root, fn root -> Map.put(root, @slice_name, state) end)
       end
 
@@ -49,8 +50,10 @@ defmodule Rephex.Slice do
       """
       @spec update_slice(Socket.t(), (state() -> state())) :: Socket.t()
       def update_slice(%Socket{} = socket, func) do
+        new_slice = func.(get_slice(socket))
+
         socket
-        |> assign(@root, func.(get_slice(socket)))
+        |> update(@root, &%{&1 | @slice_name => new_slice})
       end
 
       @spec get_slice(Socket.t()) :: state()
@@ -82,7 +85,7 @@ defmodule Rephex.Slice do
 end
 
 defmodule Rephex.CounterSlice do
-  use Rephex.Slice, name: :counter, struct: State, async_modules: [Rephex.AddCountAsync]
+  use Rephex.Slice, name: :counter, struct: State, async_modules: [Rephex.AddCountAsync2]
   alias Phoenix.LiveView.Socket
 
   defmodule State do
@@ -115,4 +118,30 @@ defmodule Rephex.CounterSlice do
 
   @spec count(%{counter: State.t()}) :: integer()
   def count(%{counter: %State{count: c}} = _state), do: c
+end
+
+defmodule Rephex.AddCountAsync2 do
+  alias Rephex.CounterSlice.State
+  alias Rephex.CounterSlice
+
+  import Phoenix.LiveComponent
+  alias Phoenix.LiveView.Socket
+  # alias Phoenix.LiveView.AsyncResult
+
+  @spec start(Socket.t(), %{amount: integer()}) :: Socket.t()
+  def start(%Socket{} = socket, %{amount: am}) do
+    CounterSlice.start_async(socket, __MODULE__, fn ->
+      :timer.sleep(1000)
+      am
+    end)
+  end
+
+  def finish(%Socket{} = socket, result) do
+    CounterSlice.update_slice(socket, fn %State{} = state ->
+      case result do
+        {:ok, amount} -> State.add_count(state, amount)
+        {:exit, _reason} -> state
+      end
+    end)
+  end
 end
