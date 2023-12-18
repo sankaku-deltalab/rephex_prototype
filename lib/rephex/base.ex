@@ -75,25 +75,25 @@ defmodule Rephex.Base do
 
   ```ex
   def add_count(%Socket{} = socket, %{amount: am}) do
-    update_Rephex(socket, fn state ->
+    update_rephex(socket, fn state ->
       %{state | count: state.count + am}
     end)
   end
   ```
   """
-  @spec update_Rephex(Socket.t(), (st -> st)) :: Socket.t() when st: state()
-  def update_Rephex(%Socket{} = socket, func) do
+  @spec update_rephex(Socket.t(), (st -> st)) :: Socket.t() when st: state()
+  def update_rephex(%Socket{} = socket, func) do
     socket
     |> assign(@root, func.(socket.assigns[@root]))
   end
 
-  @spec get_Rephex(Socket.t()) :: st when st: state()
-  def get_Rephex(%Socket{} = socket) do
+  @spec get_rephex(Socket.t()) :: st when st: state()
+  def get_rephex(%Socket{} = socket) do
     socket.assigns[@root]
   end
 
-  @spec get_from_Rephex(Socket.t(), (st -> val)) :: val when st: state(), val: any()
-  def get_from_Rephex(%Socket{} = socket, getter) do
+  @spec get_from_rephex(Socket.t(), (st -> val)) :: val when st: state(), val: any()
+  def get_from_rephex(%Socket{} = socket, getter) do
     socket.assigns[@root]
     |> getter.()
   end

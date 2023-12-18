@@ -75,14 +75,14 @@ defmodule Rephex do
 
   @spec count_up(Socket.t(), %{}) :: Socket.t()
   def count_up(%Socket{} = socket, _payload) do
-    Base.update_Rephex(socket, fn %__MODULE__{} = state ->
+    Base.update_rephex(socket, fn %__MODULE__{} = state ->
       %{state | count: state.count + 1}
     end)
   end
 
   @spec add_count(Socket.t(), %{amount: integer()}) :: Socket.t()
   def add_count(%Socket{} = socket, %{amount: am}) do
-    Base.update_Rephex(socket, fn %__MODULE__{} = state ->
+    Base.update_rephex(socket, fn %__MODULE__{} = state ->
       %{state | count: state.count + am}
     end)
   end
@@ -120,7 +120,7 @@ defmodule Rephex.AddCountAsync do
   end
 
   def finish(%Socket{} = socket, result) do
-    Base.update_Rephex(socket, fn %Rephex{} = state ->
+    Base.update_rephex(socket, fn %Rephex{} = state ->
       case result do
         {:ok, amount} -> %{state | count: state.count + amount}
         {:exit, _reason} -> state
