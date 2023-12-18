@@ -40,12 +40,9 @@ defmodule Rephex do
   ```
   """
 
-  # import Phoenix.Component
   import Phoenix.LiveComponent
-  # import Phoenix.LiveView
   # alias Phoenix.LiveView.AsyncResult
   alias Phoenix.LiveView.Socket
-  # use KinWeb, :live_component
 
   alias Rephex.Base
 
