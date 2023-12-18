@@ -17,7 +17,8 @@ defmodule RephexPtWeb.Router do
   scope "/", RephexPtWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    # get "/", PageController, :home
+    live "/", UserLive.Index, :index
   end
 
   # Other scopes may use custom stacks.
