@@ -12,12 +12,8 @@ defmodule RephexPtWeb.UserLive.Index do
     {:noreply, Rephex.add_count(socket, %{amount: am |> String.to_integer()})}
   end
 
-  def render(assigns) do
-    ~H"""
-    <div>
-      <p>Count: <%= Rephex.count(@__rephex__) %></p>
-      <button phx-click="add_count" phx-value-amount="10">Add 10</button>
-    </div>
-    """
+  def handle_info({RephexPtWeb.UserLive.ChildComponent, {:add_count, amount}} = _msg, socket)
+      when is_integer(amount) do
+    {:noreply, Rephex.add_count(socket, %{amount: amount})}
   end
 end
