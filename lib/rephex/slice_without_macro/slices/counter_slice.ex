@@ -69,7 +69,7 @@ defmodule AddCountAsync do
   end
 
   @impl true
-  def finish(%Socket{} = socket, result) do
+  def resolve(%Socket{} = socket, result) do
     Base.update_slice(socket, :counter2, fn %{} = state ->
       case result do
         {:ok, amount} -> State.add_count(state, amount)

@@ -40,7 +40,7 @@ defmodule Rephex.SliceWithoutMacro.SliceMasterMacroSupport do
   @spec resolve_async(Socket.t(), MapSet.t(), atom(), any()) :: any()
   def resolve_async(%Socket{} = socket, %MapSet{} = async_modules, name, result) do
     if name in async_modules do
-      name.finish(socket, result)
+      name.resolve(socket, result)
     else
       raise {:not_async_module, name}
     end
