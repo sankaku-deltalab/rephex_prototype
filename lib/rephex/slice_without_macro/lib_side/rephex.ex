@@ -1,4 +1,4 @@
-defmodule Rephex.SliceWithoutMacro.Rephex do
+defmodule Rephex.SliceWithoutMacro.Base do
   import Phoenix.Component
   import Phoenix.LiveComponent
   alias Phoenix.LiveView.Socket
