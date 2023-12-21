@@ -1,5 +1,6 @@
 defmodule RephexPtWeb.UserLive.ChildComponent do
   use RephexPtWeb, :live_component
+  alias Rephex2User.Slice.CounterSlice
 
   attr :__rephex__, :map, required: true
 
@@ -7,7 +8,7 @@ defmodule RephexPtWeb.UserLive.ChildComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <p>Count: <%= Rephex.CounterSlice.count(@__rephex__) %></p>
+      <p>Count: <%= CounterSlice.count(@__rephex__) %></p>
       <button phx-click="add_count" phx-value-amount="10">Add 10</button>
       <%= if @flip do %>
         flip
